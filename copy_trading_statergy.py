@@ -99,37 +99,6 @@ class CopyTradingStrategy(Strategy):
         )
         self.submit_order(order)
 
-    def get_trade_inference(self, vid, account, id, link, unix_block_timestamp):
-        """
-        Get trade inference.
-
-        Parameters:
-            id (str): Inference ID.
-
-        Returns:
-            dict: Trade inference details.
-        """
-        MODEL_SERVER_URL = "http://localhost:5000/predict"
-        block_timestamp = datetime.fromtimestamp(
-            unix_block_timestamp, tz=timezone.utc
-        ).strftime("%Y-%m-%dT%H:%M:%SZ")
-        resp = requests.post(
-            MODEL_SERVER_URL,
-            json={
-                "vid": vid,
-                "platform": "V2",
-                "account": account,
-                "id": id,
-                "link": link,
-                "event_timestamp": block_timestamp,
-            },
-        )
-        if resp.status_code == requests.codes.ok:
-            return resp.json()
-        else:
-            self._log.error(f"Failed to get inference for vid: {vid}")
-            raise Exception(f"Failed to get inference for vid: {vid}")
-
     def on_stop(self) -> None:
         if self.db_connection:
             self.db_connection.close()
